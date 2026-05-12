@@ -5,6 +5,8 @@ import java.io.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @WebServlet(name = "startServlet", value = "/start-servlet")
 public class StartServlet extends HttpServlet {
@@ -43,15 +45,16 @@ public class StartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String selectedCategory = request.getParameter("category");
-
         if (selectedCategory != null && !selectedCategory.isEmpty()) {
-            // Редирект на другой сервлет (ResultServlet) с передачей категории в GET-параметре
-            String redirectUrl = request.getContextPath() + "/questions-servlet?category=" + selectedCategory;
+            // Редирект на другой сервлет (QuestionsServlet) с передачей категории в GET-параметре
+            // Кодируем параметр для безопасной вставки в URL
+            String encodedCategory = URLEncoder.encode(selectedCategory, StandardCharsets.UTF_8);
+            String redirectUrl = request.getContextPath() + "/questions-servlet?category=" + encodedCategory;
             response.sendRedirect(redirectUrl);
         } else {
             // Если категория не выбрана – возвращаем на форму с сообщением
-            response.setContentType("text/html;charset=UTF-8");
             PrintWriter out = response.getWriter();
+            response.setContentType("text/html;charset=UTF-8");
             out.println("<html><head><meta charset='UTF-8'><title>Ошибка</title></head><body>");
             out.println("<h3>Ошибка: категория не выбрана.</h3>");
             out.println("<p><a href='" + request.getContextPath() + "/'>Вернуться назад</a></p>");
